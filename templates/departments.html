@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Add Department</h5>
+            <form action="{{ url_for('departments') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Department Name</label>
+                    <input type="text" class="form-control" name="dept_name" required>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted">HOD Name</label>
+                    <input type="text" class="form-control" name="hod_name" required>
+                </div>
+                <button type="submit" class="btn btn-outline-primary w-100">Add Department</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Departments List</h5>
+            <table class="table table-bordered table-striped text-secondary">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Department Name</th>
+                        <th>HOD Name</th>
+                        {% if session.get('role') == 'admin' %}
+                        <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in departments %}
+                    <tr>
+                        <td>{{ d.dept_id }}</td>
+                        <td>{{ d.dept_name }}</td>
+                        <td>{{ d.hod_name }}</td>
+                        {% if session.get('role') == 'admin' %}
+                        <td>
+                            <a href="{{ url_for('delete_department', id=d.dept_id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure? Deleting a department may affect associated courses and students.')">Delete</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ '4' if session.get('role') == 'admin' else '3' }}" class="text-center">No departments found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

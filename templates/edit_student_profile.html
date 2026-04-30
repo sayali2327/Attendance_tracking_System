@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h4 class="border-bottom pb-2 mb-4">Edit Profile</h4>
+            
+            <form action="{{ url_for('update_student_profile') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ student.name }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="contact" class="form-label">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ student.contact_no }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="division" class="form-label">Division</label>
+                        <input type="text" class="form-control" id="division" name="division" value="{{ student.division }}">
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ student.address }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                    <a href="{{ url_for('student_profile') }}" class="btn btn-light ms-2">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

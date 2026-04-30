@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-4 bg-white">
+            <div class="card-header bg-light border-0 py-3">
+                <h4 class="card-title text-secondary mb-0">Edit Professor Profile</h4>
+            </div>
+            <div class="card-body p-4">
+                <form action="{{ url_for('update_professor_profile') }}" method="POST">
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-muted text-sm fw-bold">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ professor.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contact" class="form-label text-muted text-sm fw-bold">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{ professor.contact_no or '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label text-muted text-sm fw-bold">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3" required>{{ professor.address or '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="qualification" class="form-label text-muted text-sm fw-bold">Qualification</label>
+                            <input type="text" class="form-control" id="qualification" name="qualification" value="{{ professor.qualification or '' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="experience" class="form-label text-muted text-sm fw-bold">Experience (Years)</label>
+                            <input type="number" class="form-control" id="experience" name="experience" min="0" value="{{ professor.experience or 0 }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="gender" class="form-label text-muted text-sm fw-bold">Gender</label>
+                            <select class="form-control" id="gender" name="gender">
+                                <option value="" disabled {% if not professor.gender %}selected{% endif %}>Select Gender</option>
+                                <option value="Male" {% if professor.gender == 'Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if professor.gender == 'Female' %}selected{% endif %}>Female</option>
+                                <option value="Other" {% if professor.gender == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="dept_id" class="form-label text-muted text-sm fw-bold">Department</label>
+                            <select class="form-control" id="dept_id" name="dept_id" required>
+                                <option value="" disabled {% if not professor.dept_id %}selected{% endif %}>Select Department</option>
+                                {% for dept in departments %}
+                                    <option value="{{ dept.dept_id }}" {% if professor.dept_id == dept.dept_id %}selected{% endif %}>
+                                        {{ dept.dept_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="dob" class="form-label text-muted text-sm fw-bold">Date of Birth</label>
+                            <input type="date" class="form-control" id="dob" name="dob" value="{{ professor.dob or '' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="joining_date" class="form-label text-muted text-sm fw-bold">Joining Date</label>
+                            <input type="date" class="form-control" id="joining_date" name="joining_date" value="{{ professor.joining_date or '' }}">
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 text-center border-top">
+                        <a href="{{ url_for('professor_profile') }}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

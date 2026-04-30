@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Courses{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 mb-4 bg-light">
+            <div class="card-body">
+                <h4 class="card-title text-secondary">Assign Subjects to Student</h4>
+                <form action="{{ url_for('assign_course') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="std_id" class="form-label text-muted">Select Student</label>
+                        <select class="form-select" id="std_id" name="std_id" required>
+                            <option value="" disabled selected>Choose a student...</option>
+                            {% for std in students %}
+                            <option value="{{ std['std_id'] }}">{{ std['name'] }} (ID: {{ std['std_id'] }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted">Select Courses</label>
+                        <div class="border rounded p-3 bg-white" style="max-height: 200px; overflow-y: auto;">
+                            {% for course in courses %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="courses" value="{{ course['c_id'] }}" id="course_{{ course['c_id'] }}">
+                                <label class="form-check-label" for="course_{{ course['c_id'] }}">
+                                    {{ course['course_name'] }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% if not courses %}
+                            <p class="text-muted small">No courses available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Assign Courses</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h4 class="card-title text-secondary">Current Assignments</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Assigned Subject</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assign in assignments %}
+                            <tr>
+                                <td>{{ assign['name'] }}</td>
+                                <td>{{ assign['course_name'] }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">No assignments found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

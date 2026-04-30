@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+
+  {# ════════════════════════════════════════════════════════
+     PROFESSOR VIEW — strict self-only isolation
+  ════════════════════════════════════════════════════════ #}
+  {% if role == 'professor' %}
+
+  <div class="col-md-12 mb-4">
+    <div class="card p-4">
+      <h4 class="mb-1 text-secondary">My Attendance</h4>
+      <p class="text-muted small mb-4">You can only view and mark your own attendance.</p>
+
+      <form action="{{ url_for('mark_professor_attendance') }}" method="GET" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+          <label class="form-label text-muted">Select Date</label>
+          <input type="date" class="form-control" name="date" value="{{ date or '' }}" required>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-outline-primary w-100">Load My Record</button>
+        </div>
+      </form>
+
+      {% if my_record %}
+      <hr>
+      <h5 class="my-3 text-secondary">Marking Attendance for {{ date }}</h5>
+      <form action="{{ url_for('mark_professor_attendance') }}" method="POST">
+        <input type="hidden" name="date" value="{{ date }}">
+        <div class="card p-3 mb-3 border-0 bg-light">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="fw-semibold text-dark fs-6">{{ my_record.name }}</span>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  name="status_{{ my_record.prof_id }}"
+                  id="present_me" value="present"
+                  {% if my_record.status == 'present' or not my_record.status %}checked{% endif %}>
+                <label class="form-check-label text-success fw-semibold" for="present_me">Present</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  name="status_{{ my_record.prof_id }}"
+                  id="absent_me" value="absent"
+                  {% if my_record.status == 'absent' %}checked{% endif %}>
+                <label class="form-check-label text-danger fw-semibold" for="absent_me">Absent</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="submit" name="prof_status_submit" class="btn btn-primary">Save My Attendance</button>
+      </form>
+      {% elif date %}
+      <div class="alert alert-info mt-3">No record found for {{ date }}. Submit below to create one.</div>
+      <form action="{{ url_for('mark_professor_attendance') }}" method="POST">
+        <input type="hidden" name="date" value="{{ date }}">
+        {% if my_record is none %}
+          {# Re-fetch via hidden approach — the route will use session id #}
+        {% endif %}
+        <p class="text-muted">Your name will be looked up automatically from your session.</p>
+        <div class="d-flex gap-3 mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="status_{{ session['user_id'] }}"
+              id="present_new" value="present" checked>
+            <label class="form-check-label text-success fw-semibold" for="present_new">Present</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="status_{{ session['user_id'] }}"
+              id="absent_new" value="absent">
+            <label class="form-check-label text-danger fw-semibold" for="absent_new">Absent</label>
+          </div>
+        </div>
+        <button type="submit" name="prof_status_submit" class="btn btn-primary">Save My Attendance</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- My Attendance History -->
+  <div class="col-md-12">
+    <div class="card p-4">
+      <h5 class="mb-3 text-secondary">My Attendance History</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped text-secondary">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in my_history %}
+            <tr>
+              <td>{{ h.date }}</td>
+              <td>
+                <span class="badge {% if h.status == 'present' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} border">
+                  {{ h.status|upper }}
+                </span>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="2" class="text-center">No attendance history yet.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# ════════════════════════════════════════════════════════
+     ADMIN VIEW — full department-level management
+  ════════════════════════════════════════════════════════ #}
+  {% else %}
+
+  <div class="col-md-12 mb-4">
+    <div class="card p-4">
+      <h4 class="mb-4 text-secondary">Professor Attendance Management</h4>
+      <form action="{{ url_for('mark_professor_attendance') }}" method="GET" class="row g-3 align-items-end mb-4">
+        <div class="col-md-4">
+          <label class="form-label text-muted">Select Department</label>
+          <select class="form-select" name="dept_id" required>
+            <option value="">Choose Department...</option>
+            {% for d in departments %}
+            <option value="{{ d.dept_id }}" {% if selected_dept_id|string == d.dept_id|string %}selected{% endif %}>
+              {{ d.dept_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted">Select Date</label>
+          <input type="date" class="form-control" name="date" value="{{ date or '' }}" required>
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-outline-primary w-100">Load Professors</button>
+        </div>
+      </form>
+
+      {% if professors %}
+      <hr>
+      <h5 class="my-3 text-secondary">Marking Attendance for {{ date }}</h5>
+      <form action="{{ url_for('mark_professor_attendance') }}" method="POST">
+        <input type="hidden" name="dept_id" value="{{ selected_dept_id }}">
+        <input type="hidden" name="date" value="{{ date }}">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light text-muted">
+              <tr>
+                <th>Professor Name</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in professors %}
+              <tr>
+                <td>{{ p.name }}</td>
+                <td>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio"
+                      name="status_{{ p.prof_id }}" id="present_{{ p.prof_id }}" value="present"
+                      {% if p.status == 'present' or not p.status %}checked{% endif %}>
+                    <label class="form-check-label" for="present_{{ p.prof_id }}">Present</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio"
+                      name="status_{{ p.prof_id }}" id="absent_{{ p.prof_id }}" value="absent"
+                      {% if p.status == 'absent' %}checked{% endif %}>
+                    <label class="form-check-label" for="absent_{{ p.prof_id }}">Absent</label>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button type="submit" name="prof_status_submit" class="btn btn-primary mt-3">Submit Attendance</button>
+      </form>
+      {% elif selected_dept_id %}
+      <div class="alert alert-info">No professors found in this department.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Full History (Admin) -->
+  <div class="col-md-12">
+    <div class="card p-4">
+      <h5 class="mb-3 text-secondary">Professor Attendance History</h5>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped text-secondary">
+          <thead class="table-light">
+            <tr>
+              <th>Professor Name</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for h in history %}
+            <tr>
+              <td>{{ h.name }}</td>
+              <td>{{ h.date }}</td>
+              <td>
+                <span class="badge {% if h.status == 'present' %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} border">
+                  {{ h.status|upper }}
+                </span>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="3" class="text-center">No attendance history available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% endif %}
+</div>
+{% endblock %}

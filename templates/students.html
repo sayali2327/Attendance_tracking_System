@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Assign Student</h5>
+            <form action="{{ url_for('students') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Student</label>
+                    <select class="form-select" name="std_id" required>
+                        <option value="">Select Student</option>
+                        {% for s in students %}
+                        <option value="{{ s.std_id }}">{{ s.name }} ({{ s.email }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Department</label>
+                    <select class="form-select" name="dept_id" required>
+                        <option value="">Select Department</option>
+                        {% for d in departments %}
+                        <option value="{{ d.dept_id }}">{{ d.dept_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary w-100">Update Student</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Students List</h5>
+            <table class="table table-bordered table-striped text-secondary">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        {% if session.get('role') == 'admin' %}
+                        <th>Action</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td>{{ s.std_id }}</td>
+                        <td>{{ s.name }}</td>
+                        <td>{{ s.email }}</td>
+                        <td>{{ s.dept_name or 'Not Assigned' }}</td>
+                        {% if session.get('role') == 'admin' %}
+                        <td>
+                            <a href="{{ url_for('delete_student', id=s.std_id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this student?')">Delete</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="{{ '5' if session.get('role') == 'admin' else '4' }}" class="text-center">No students registered yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

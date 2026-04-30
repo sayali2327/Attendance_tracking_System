@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Filter Options</h5>
+            
+            <form action="{{ url_for('mark_attendance') }}" method="GET" id="filterForm">
+                <div class="mb-3">
+                    <label class="form-label text-muted">1. Select Department</label>
+                    <select class="form-select" name="dept_id" required onchange="let l = document.getElementById('lec_id'); if(l){ l.value=''; } this.form.submit()">
+                        <option value="">Choose Department...</option>
+                        {% for d in departments %}
+                        <option value="{{ d.dept_id }}" {% if selected_dept_id == d.dept_id|string %}selected{% endif %}>
+                            {{ d.dept_name }} 
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if selected_dept_id %}
+                <div class="mb-3">
+                    <label class="form-label text-muted">2. Select Lecture</label>
+                    <select class="form-select" name="lec_id" id="lec_id" onchange="this.form.submit()">
+                        <option value="">Choose Lecture...</option>
+                        {% for l in lectures %}
+                        <option value="{{ l.lec_id }}" {% if selected_lecture and selected_lecture.lec_id == l.lec_id %}selected{% endif %}>
+                            {{ l.date }} - {{ l.course_name }} ({{ l.type }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+            </form>
+            
+            {% if selected_lecture %}
+            <div class="mt-4 border-top pt-3">
+                <h6 class="text-muted">Lecture Details</h6>
+                <p class="mb-1"><small><strong>Course:</strong> {{ selected_lecture.course_name }}</small></p>
+                <p class="mb-1"><small><strong>Date/Time:</strong> {{ selected_lecture.date }} {{ selected_lecture.time }}</small></p>
+                <p class="mb-0"><small><strong>Location:</strong> {{ selected_lecture.location }}</small></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Mark Attendance</h5>
+            
+            {% if not selected_dept_id %}
+                <div class="text-center text-muted p-5">
+                    <p>Please select a department first to begin marking attendance.</p>
+                </div>
+            {% elif not selected_lecture %}
+                <div class="text-center text-muted p-5">
+                    <p>Now, select a lecture to view the enrolled students for that department.</p>
+                </div>
+            {% else %}
+                {% if students %}
+                <form action="{{ url_for('mark_attendance') }}" method="POST" onsubmit="document.getElementById('saveAttendanceBtn').disabled = true; document.getElementById('saveAttendanceBtn').innerText = 'Saving...';">
+                    <input type="hidden" name="dept_id" value="{{ selected_dept_id }}">
+                    <input type="hidden" name="lec_id" value="{{ selected_lecture.lec_id }}">
+                    
+                    <div class="mt-2 mb-2">
+                        <h6 class="text-primary fw-bold border-bottom pb-2">Students in {{ students[0].dept_name if students else 'Department' }}</h6>
+                    </div>
+                    <table class="table table-bordered table-striped text-secondary mb-4">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th class="text-center">Present</th>
+                                <th class="text-center">Absent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in students %}
+                            <tr>
+                                <td>{{ s.std_id }}</td>
+                                <td>{{ s.name }}</td>
+                                <td class="text-center">
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input" type="radio" name="status_{{ s.std_id }}" value="present" required {% if s.status == 'present' %}checked{% endif %}>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="form-check d-flex justify-content-center">
+                                        <input class="form-check-input" type="radio" name="status_{{ s.std_id }}" value="absent" required {% if s.status == 'absent' %}checked{% endif %}>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <div class="text-end">
+                        <button type="submit" id="saveAttendanceBtn" class="btn btn-outline-primary">Save Attendance</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-info">
+                    No students from the selected department are enrolled in this lecture's course.
+                </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <!-- History Box -->
+        <div class="card p-4 mt-4">
+            <h5 class="mb-3 text-muted border-bottom pb-2">Full Attendance History</h5>
+            {% if history %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped text-secondary">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Lecture Date</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in history %}
+                        <tr>
+                            <td>{{ record.name }}</td>
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.subject }}</td>
+                            <td>
+                                {% if record.status == 'present' %}
+                                    <span class="badge bg-success">Present</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Absent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-light border">No historical attendance records found in the database.</div>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

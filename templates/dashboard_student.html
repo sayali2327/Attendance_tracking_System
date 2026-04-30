@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h4 class="mb-3">Student Dashboard</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Student Details Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                <h5 class="card-title text-muted mb-0">Personal Details</h5>
+                <a href="{{ url_for('edit_student_profile') }}" class="btn btn-link btn-sm p-0 text-decoration-none">Edit</a>
+            </div>
+            {% if student %}
+                <p><strong>Name:</strong> <span class="text-secondary">{{ student.name }}</span></p>
+                <p><strong>Email:</strong> <span class="text-secondary">{{ student.email }}</span></p>
+                <p><strong>Contact:</strong> <span class="text-secondary">{{ student.contact_no }}</span></p>
+                <p><strong>Department:</strong> <span class="text-secondary">{{ student.dept_name or 'Not Assigned' }}</span></p>
+            {% else %}
+                <p class="text-muted">Details not available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Enrolled Courses Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100">
+            <h5 class="card-title text-muted border-bottom pb-2 mb-3">Enrolled Subjects</h5>
+            {% if courses %}
+                <ul class="list-group list-group-flush">
+                {% for course in courses %}
+                    <li class="list-group-item bg-transparent text-secondary px-0">{{ course.course_name }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted">Not enrolled in any subjects.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Attendance Card -->
+    <div class="col-md-4 mb-4">
+        <div class="card p-4 h-100">
+            <h5 class="card-title text-muted border-bottom pb-2 mb-3">Attendance Stats</h5>
+            {% if attendance %}
+                <table class="table table-sm table-borderless text-secondary">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Attended</th>
+                            <th>Total</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance %}
+                        <tr>
+                            <td>{{ record.course_name }}</td>
+                            <td>{{ record.attended_lectures or 0 }}</td>
+                            <td>{{ record.total_lectures or 0 }}</td>
+                            <td>
+                                {% if record.attendance_percentage %}
+                                    <span class="badge {% if record.attendance_percentage >= 75 %}bg-success{% else %}bg-danger{% endif %}">{{ record.attendance_percentage }}%</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted">No attendance records found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card p-4">
+            <h5 class="card-title text-muted border-bottom pb-2 mb-3">Detailed Lecture Log</h5>
+            {% if detailed_attendance %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped text-secondary">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Subject</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in detailed_attendance %}
+                            <tr>
+                                <td>{{ record.date }}</td>
+                                <td>{{ record.time }}</td>
+                                <td>{{ record.course_name }}</td>
+                                <td>{{ record.type }}</td>
+                                <td>
+                                    {% if record.status == 'present' %}
+                                        <span class="badge bg-success">Present</span>
+                                    {% elif record.status == 'absent' %}
+                                        <span class="badge bg-danger">Absent</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Unmarked</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">No lectures found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

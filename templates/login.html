@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card p-4 mt-4">
+            <h3 class="mb-4 text-center">Login</h3>
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label text-muted">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label text-muted">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-outline-dark w-100">Sign In</button>
+            </form>
+            <div class="text-center mt-3">
+                <small class="text-muted">Don't have an account? <a href="{{ url_for('register') }}" class="text-primary-soft text-decoration-none">Register here</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

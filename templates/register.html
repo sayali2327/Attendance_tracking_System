@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 mt-4">
+            <h3 class="mb-4 text-center">Register</h3>
+            <form action="{{ url_for('register') }}" method="POST">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label text-muted">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="password" class="form-label text-muted">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label text-muted">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label text-muted">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="contact_no" class="form-label text-muted">Contact Number</label>
+                    <input type="text" class="form-control" id="contact_no" name="contact_no">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted">Role</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="role" id="roleStudent" value="student" required checked>
+                            <label class="form-check-label" for="roleStudent">Student</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="role" id="roleProfessor" value="professor" required>
+                            <label class="form-check-label" for="roleProfessor">Professor</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="role" id="roleAdmin" value="admin" required>
+                            <label class="form-check-label" for="roleAdmin">Admin</label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline-primary w-100">Create Account</button>
+            </form>
+            <div class="text-center mt-3">
+                <small class="text-muted">Already have an account? <a href="{{ url_for('login') }}" class="text-primary-soft text-decoration-none">Login here</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

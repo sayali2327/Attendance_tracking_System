@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Schedule Lecture</h5>
+            <form action="{{ url_for('lectures') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Course (Subject)</label>
+                    <select class="form-select" name="c_id" required>
+                        <option value="">Select Course</option>
+                        {% for c in courses %}
+                        <option value="{{ c.c_id }}">{{ c.course_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Date</label>
+                    <input type="date" class="form-control" name="date" id="lecture_date" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Time</label>
+                    <input type="time" class="form-control" name="time" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Location</label>
+                    <input type="text" class="form-control" name="location">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-muted">Type</label>
+                    <select class="form-select" name="type">
+                        <option value="Theory">Theory</option>
+                        <option value="Practical">Practical</option>
+                        <option value="Tutorial">Tutorial</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-outline-primary w-100">Schedule Lecture</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card p-4">
+            <h5 class="mb-3 text-muted">Lectures List</h5>
+            <table class="table table-bordered table-striped text-secondary">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Course</th>
+                        <th>Date & Time</th>
+                        <th>Location</th>
+                        <th>Type</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for l in lectures %}
+                    <tr>
+                        <td>{{ l.lec_id }}</td>
+                        <td>{{ l.course_name }}</td>
+                        <td>{{ l.date }} {{ l.time }}</td>
+                        <td>{{ l.location }}</td>
+                        <td>{{ l.type }}</td>
+                        <td>
+                            <a href="{{ url_for('mark_attendance', lec_id=l.lec_id) }}" class="btn btn-sm btn-outline-primary">Mark Attendance</a>
+                            {% if session.get('role') == 'admin' %}
+                            <a href="{{ url_for('delete_lecture', id=l.lec_id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this lecture?')">Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No lectures scheduled.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Enforce today-or-future date at browser level
+  document.addEventListener('DOMContentLoaded', function () {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('lecture_date').setAttribute('min', today);
+  });
+</script>
+{% endblock %}
